@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style>
+	*{margin:0;padding:0}
+	body,html{height:100%;}
+	body{background:url(./timg.jpg);background-size:100% 100%;overflow:hidden;}
+	span{display:block;width:100px;height:100px;background:url(./plan.png) no-repeat;background-size:100% 100%;text-align:center;line-height:70px;font-size:40px;color:red;font-weight:bold;position:absolute;top:0px;}
+</style>
+</head>
+
+<body>
+	<script>
+		var speed = 1;
+		var timer = null;
+		var vw = document.documentElement.offsetWidth;
+		var vh = document.documentElement.offsetHeight;
+		var planSpeed = 4;
+    	//背景的移动
+		function bgMove(){
+			timer = setInterval(function(){
+				speed -= 4;
+				document.body.style.backgroundPosition = 'center ' + speed +'px'; 
+			},100)				
+		}
+		
+		//随机创建飞机（飞机移动）
+		function createPlan(){
+			//定时器定时创建飞机
+			setInterval(function(){
+				//创建节点
+				var plan = document.createElement('span');
+				//创建一个 65 - 90 的随机数
+				plan.innerHTML = String.fromCharCode(randomNum(65,90));
+				//确定飞机在页面中的位置（左右随机）
+				plan.style.left = randomNum(0,vw - 100) +'px';
+				//把创建好的节点 放在body里面
+				document.body.appendChild(plan);
+				//调用飞机移动的方法
+				move(plan);
+			},500)	
+		}
+		
+		
+		//封装飞机移动的方法
+		function move(ele){
+			ele.timer = setInterval(function(){
+				ele.style.top = ele.offsetTop + planSpeed +'px';
+				//游戏停止
+				if(ele.offsetTop >= vh - 100){
+					clearInterval(ele.timer);
+					alert('game over');
+					//刷新页面
+					location.reload();
+				}
+			},30)
+		}
+		
+		//封装随机数
+		function randomNum(n,m){
+			return parseInt(Math.random() * (m - n + 1) + n);	
+		}
+		//单击控制游戏开始
+		document.onclick = function(){
+			bgMove();
+			createPlan();
+		}
+		//绑定键盘事件
+		document.onkeydown = function(e){
+			//事件对象
+			e = e || window.event;
+			//获取键盘ascii码
+			var code = e.keyCode || e.which;
+			//每一次按键的时候，遍历所有飞机上的字母的ascii码
+			//如果ascii相同，把飞机移除。
+			var aPlan = document.querySelectorAll('span');
+			for(var i = 0 ; i < aPlan.length ; i++){
+				var planCode = aPlan[i].innerHTML.charCodeAt(0);
+				//飞机的ascii码 和 键盘的ascii码 比对
+				if(code == planCode){
+					//当飞机爆炸之前：先记录飞机的位置
+					var l = aPlan[i].offsetLeft;
+					var t = aPlan[i].offsetTop;
+					//移除飞机
+					aPlan[i].remove();
+
+					//创建爆炸的dom节点  img
+					var imgPeng = document.createElement('img');
+					imgPeng.src = './die.gif';
+					// imgPeng.style.width = '100px';
+					// imgPeng.style.height = '100px';
+					// imgPeng.style.left = l + 'px';
+					// imgPeng.style.top = t + 'px';
+					imgPeng.style.cssText = 'width:100px;height:100px;position:absolute;left:'+l+'px;top:'+t+'px';
+					//添加到body里面
+					document.body.appendChild(imgPeng);
+					//爆炸完毕，销毁  （延时器，延迟300ms 移除爆炸图片）
+					var aImg = document.querySelectorAll('img');
+					setTimeout(function(){
+						for(var i = 0 ; i < aImg.length ; i++){
+							aImg[i].remove();
+						}
+					},500)
+				}
+			}
+		}
+
+
+
+
+
+
+		
+    </script>
+</body>
+</html>
